@@ -1,0 +1,110 @@
+======================================================================
+  DATASET STATISTICS REPORT — Speech Emotion Recognition
+======================================================================
+
+──────────────────────────────────────────────────────────────────────
+  1. PER-SPLIT SAMPLE COUNTS
+──────────────────────────────────────────────────────────────────────
+  Split        Samples
+  train           9345
+  val             1167
+  test            1170
+  TOTAL          11682
+
+──────────────────────────────────────────────────────────────────────
+  2. CLASS (POLARITY) DISTRIBUTION
+──────────────────────────────────────────────────────────────────────
+
+  [TRAIN — 9345 samples]  imbalance ratio = 4.20x
+  Class                       Count  Pct
+    negative                     5961  (63.8%)
+    neutral                      1420  (15.2%)
+    positive                     1964  (21.0%)
+
+  [VAL — 1167 samples]  imbalance ratio = 4.21x
+  Class                       Count  Pct
+    negative                      745  (63.8%)
+    neutral                       177  (15.2%)
+    positive                      245  (21.0%)
+
+  [TEST — 1170 samples]  imbalance ratio = 4.19x
+  Class                       Count  Pct
+    negative                      746  (63.8%)
+    neutral                       178  (15.2%)
+    positive                      246  (21.0%)
+
+  [OVERALL — 11682 samples]
+  Class                       Count  Pct
+    negative                     7452  (63.8%)
+    neutral                      1775  (15.2%)
+    positive                     2455  (21.0%)
+
+  Overall imbalance ratio: 4.20x
+
+──────────────────────────────────────────────────────────────────────
+  3. FINE-GRAINED EMOTION LABEL DISTRIBUTION (OVERALL)
+──────────────────────────────────────────────────────────────────────
+  Label                       Count  Pct
+    angry                        1863  (15.9%)
+    calm                          192  (1.6%)
+    disgust                      1863  (15.9%)
+    fear                         1863  (15.9%)
+    happy                        1863  (15.9%)
+    neutral                      1583  (13.6%)
+    ps                            400  (3.4%)
+    sad                          1863  (15.9%)
+    surprised                     192  (1.6%)
+
+──────────────────────────────────────────────────────────────────────
+  4. SOURCE DATASET DISTRIBUTION
+──────────────────────────────────────────────────────────────────────
+
+  [TRAIN]
+  Dataset                     Count  Pct
+    CREMA-D                      5959  (63.8%)
+    RAVDESS                      1161  (12.4%)
+    TESS                         2225  (23.8%)
+
+  [VAL]
+  Dataset                     Count  Pct
+    CREMA-D                       749  (64.2%)
+    RAVDESS                       141  (12.1%)
+    TESS                          277  (23.7%)
+
+  [TEST]
+  Dataset                     Count  Pct
+    CREMA-D                       734  (62.7%)
+    RAVDESS                       138  (11.8%)
+    TESS                          298  (25.5%)
+
+  [OVERALL]
+  Dataset                     Count  Pct
+    CREMA-D                      7442  (63.7%)
+    RAVDESS                      1440  (12.3%)
+    TESS                         2800  (24.0%)
+
+──────────────────────────────────────────────────────────────────────
+  5. CLASS IMBALANCE HANDLING STRATEGIES
+──────────────────────────────────────────────────────────────────────
+
+  Two complementary strategies are applied during model training:
+
+  a) WeightedRandomSampler
+     ─────────────────────
+     Each training sample is assigned a weight inversely proportional to
+     its class frequency.  The sampler draws batches with replacement so
+     that all classes are represented roughly equally in every mini-batch.
+     Formula: w_c = total_samples / (n_classes × count_c)
+
+  b) Class-Weighted Cross-Entropy Loss
+     ────────────────────────────────
+     The same inverse-frequency weights are passed to nn.CrossEntropyLoss
+     so that misclassifying minority-class samples incurs a larger penalty,
+     biasing the gradient updates toward harder-to-learn classes.
+
+  Together these techniques counteract over-representation of the majority
+  class throughout both sampling and the gradient signal.
+
+======================================================================
+  END OF REPORT
+======================================================================
