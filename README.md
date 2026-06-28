@@ -14,9 +14,9 @@
 
 ## 🧠 Overview
 
-Occupational **fatigue and burnout** are among the most widespread workplace health crises, officially recognized by the WHO as a syndrome resulting from unmanaged chronic stress. Current diagnostic methods — questionnaires (like the Maslach Burnout Inventory), clinical interviews, or physiological sensors — are either intrusive, expensive, or impractical for continuous monitoring.
+Occupational **fatigue and burnout** are among the most widespread workplace health crises, officially recognized by the WHO as a syndrome resulting from unmanaged chronic stress. Current diagnostic methods—questionnaires (like the Maslach Burnout Inventory), clinical interviews, or physiological sensors—are either intrusive, expensive, or impractical for continuous monitoring.
 
-This project proposes a fully **automated, annotation-free, two-stage pipeline** that detects early signs of mental fatigue and burnout **purely from speech signals** — no physiological sensors, no video, no text transcriptions required.
+This project proposes a fully **automated, annotation-free, two-stage pipeline** that detects early signs of mental fatigue and burnout **purely from speech signals**—no physiological sensors, no video, no text transcriptions required.
 
 ### 🔑 What Makes This System Unique
 
@@ -32,7 +32,7 @@ This project proposes a fully **automated, annotation-free, two-stage pipeline**
 
 ## 🏗️ System Architecture
 
-![End-to-end pipeline architecture of the proposed fatigue detection system](System_Architecture_Diagram.png)
+![End-to-end pipeline architecture of the proposed fatigue detection system](Images/System_Architecture_Diagram.png)
 
 > The pipeline takes raw `.wav` speech files as input, passes them through **Stage 1** (Emotion Recognition via CRNN-BiGRU) and **Stage 2** (Fatigue Prediction via BiGRU-Attention), and outputs a fatigue severity classification: **Low / Moderate / High Fatigue**.
 
@@ -40,7 +40,7 @@ This project proposes a fully **automated, annotation-free, two-stage pipeline**
 
 ## 🔬 Stage 1 — Emotion Classifier (CRNN-BiGRU)
 
-![CRNN-BiGRU architecture used for Stage-1 speech emotion recognition](CRNN-BiGRU%20architecture%20used%20for%20Stage-1%20speech%20emotion%20recognition..png)
+![CRNN-BiGRU architecture used for Stage-1 speech emotion recognition](Images/CRNN-BiGRU%20architecture%20used%20for%20Stage-1%20speech%20emotion%20recognition..png)
 
 The Stage 1 model is a **Convolutional Recurrent Neural Network** with a Bidirectional GRU that classifies each speech utterance into one of three emotion polarities: **Negative**, **Neutral**, or **Positive**.
 
@@ -82,11 +82,12 @@ The Stage 1 model is a **Convolutional Recurrent Neural Network** with a Bidirec
 
 ### Arousal Score Computation
 
-![Arousal & Fatigue Score Computation Flow — Stage 2 Formula Chain](Arousal%20%26%20Fatigue%20Score%20Computation%20Flow%20%28Stage%202%20Formula%20Chain%29.png)
+![Arousal & Fatigue Score Computation Flow — Stage 2 Formula Chain](Images/Arousal%20%26%20Fatigue%20Score%20Computation%20Flow%20%28Stage%202%20Formula%20Chain%29.png)
 
-The composite arousal score fuses two streams — acoustic features and emotion probabilities from Stage 1:
+The composite arousal score fuses two streams—acoustic features and emotion probabilities from Stage 1:
 
 **Acoustic Arousal (A_acoustic):**
+
 - RMS Energy (weight: 0.30)
 - F0 Mean — Fundamental Frequency mean (weight: 0.25)
 - F0 Variance (weight: 0.20)
@@ -95,7 +96,8 @@ The composite arousal score fuses two streams — acoustic features and emotion 
 - Zero Crossing Rate (weight: 0.05)
 
 **Composite Arousal Formula:**
-```
+
+```text
 A_final = α · A_emotion + (1 - α) · A_acoustic
 ```
 
@@ -109,14 +111,14 @@ A_final = α · A_emotion + (1 - α) · A_acoustic
 
 ### Temporal Model (BiGRU-Attention)
 
-![Temporal window construction and BiGRU-Attention model used for fatigue prediction](Temporal%20window%20construction%20and%20BiGRU-Attention%20model%20used%20for%20fatigue%20prediction..png)
+![Temporal window construction and BiGRU-Attention model used for fatigue prediction](Images/Temporal%20window%20construction%20and%20BiGRU-Attention%20model%20used%20for%20fatigue%20prediction..png)
 
 A **10-utterance sliding window** per speaker feeds into a Bidirectional GRU with Scaled Dot-Product Attention to model the cumulative, gradual nature of burnout progression.
 
-- **Sliding Window**: 10 consecutive utterances, stride = 5
-- **Feature Vector per Timestep**: Emotion probabilities + acoustic features + arousal score + trend slope
-- **Model**: BiGRU → Scaled Dot-Product Attention → Context Vector → FC → Softmax (3 classes)
-- **Cross-Validation**: 5-fold stratified
+- **Sliding Window:** 10 consecutive utterances, stride = 5
+- **Feature Vector per Timestep:** Emotion probabilities + acoustic features + arousal score + trend slope
+- **Model:** BiGRU → Scaled Dot-Product Attention → Context Vector → FC → Softmax (3 classes)
+- **Cross-Validation:** 5-fold stratified
 
 ---
 
@@ -127,9 +129,10 @@ A **10-utterance sliding window** per speaker feeds into a Bidirectional GRU wit
 | **CREMA-D** | 7,442 | 63.7% | Crowd-sourced Emotional Multimodal Actors Dataset |
 | **TESS** | 2,800 | 24.0% | Toronto Emotional Speech Set |
 | **RAVDESS** | 1,440 | 12.3% | Ryerson Audio-Visual Database of Emotional Speech and Song |
-| **Total** | **11,682** | 100% | |
+| **Total** | **11,682** | **100%** | |
 
-> ⚠️ **Datasets not included** in this repo due to size. Download from:
+> ⚠️ **Datasets are not included** in this repository due to their size. They can be downloaded from:
+>
 > - [CREMA-D](https://github.com/CheyneyComputerScience/CREMA-D)
 > - [RAVDESS](https://zenodo.org/record/1188976)
 > - [TESS](https://tspace.library.utoronto.ca/handle/1807/24487)
@@ -138,25 +141,26 @@ A **10-utterance sliding window** per speaker feeds into a Bidirectional GRU wit
 
 ## 📚 Research Background
 
-Grounded in:
-1. **Russell's Circumplex Model of Affect (1980)** — valence-arousal space for emotion-to-fatigue mapping
-2. **Maslach Burnout Inventory (MBI)** — three-tier fatigue severity framework
-3. **CRNN-BiGRU SER literature** — Trigeorgis et al. (2016), Schuller et al. (2013)
+This work is grounded in:
+
+1. **Russell's Circumplex Model of Affect (1980)** — Valence-arousal space for emotion-to-fatigue mapping.
+2. **Maslach Burnout Inventory (MBI)** — Three-tier fatigue severity framework.
+3. **CRNN-BiGRU Speech Emotion Recognition literature** — including Trigeorgis et al. (2016) and Schuller et al. (2013).
 
 ---
 
 ## 🔭 Future Enhancements
 
-- [ ] Real-world naturalistic speech datasets
-- [ ] Per-speaker baseline calibration
-- [ ] wav2vec 2.0 / HuBERT as encoder
-- [ ] Real-time REST API deployment
-- [ ] Multi-modal fusion (speech + facial expression)
+- [ ] Evaluate on real-world naturalistic speech datasets
+- [ ] Introduce per-speaker baseline calibration
+- [ ] Replace handcrafted features with wav2vec 2.0 / HuBERT embeddings
+- [ ] Deploy as a real-time REST API
+- [ ] Extend to multimodal fatigue detection (speech + facial expressions)
 
 ---
 
 <div align="center">
 
-⭐ Star this repository if you found it useful!
+⭐ If you found this project interesting, consider giving it a star!
 
 </div>
