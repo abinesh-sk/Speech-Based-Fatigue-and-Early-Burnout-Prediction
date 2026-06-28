@@ -7,11 +7,10 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)](https://python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C?style=for-the-badge&logo=pytorch)](https://pytorch.org)
 [![Librosa](https://img.shields.io/badge/Librosa-0.10%2B-green?style=for-the-badge)](https://librosa.org)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
-
 
 </div>
 
+---
 
 ## 🧠 Overview
 
@@ -33,58 +32,17 @@ This project proposes a fully **automated, annotation-free, two-stage pipeline**
 
 ## 🏗️ System Architecture
 
-```
-Raw Speech Audio
-       │
-       ▼
-┌──────────────────────────────────────────────────┐
-│         AUDIO PREPROCESSING                      │
-│  16kHz Mono Resampling → Silence Removal →       │
-│  Loudness Normalization → 3-second Padding       │
-└─────────────────────┬────────────────────────────┘
-                      │
-          ┌───────────┴───────────┐
-          │                       │
-          ▼                       ▼
-   Log-Mel Spectrogram     6 Acoustic Features
-   (80 mel bands)          (RMS, F0, Spectral, ZCR)
-          │                       │
-          ▼                       │
-┌─────────────────────┐           │
-│  STAGE 1            │           │
-│  CRNN-BiGRU         │           │
-│  Emotion Classifier │           │
-│  → Negative         │           │
-│  → Neutral          │           │
-│  → Positive         │           │
-└──────────┬──────────┘           │
-           │  Class Probabilities  │
-           └──────────┬────────────┘
-                      ▼
-┌─────────────────────────────────────────────────┐
-│         STAGE 2: AROUSAL COMPUTATION            │
-│  A_acoustic = f(RMS, F0, Spectral, ZCR)         │
-│  A_emotion  = f(P_negative, P_neutral, P_pos)   │
-│  A_final    = α·A_emotion + (1-α)·A_acoustic    │
-│  Fatigue Score = g(A_final, sustained affect)   │
-│  K-Means Clustering → Pseudo-Labels             │
-│  [Non-Fatigued | Mild Fatigue | High Fatigue]   │
-└──────────────────────┬──────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────┐
-│  STAGE 2: BiGRU-ATTENTION TEMPORAL MODEL        │
-│  Sliding Window (10 utterances per speaker)     │
-│         ↓                                        │
-│  Bidirectional GRU + Scaled Dot-Product Attention│
-│         ↓                                        │
-│  [Non-Fatigued | Mild Fatigue | High Burnout]   │
-└─────────────────────────────────────────────────┘
-```
+![End-to-end pipeline architecture of the proposed fatigue detection system](System_Architecture_Diagram.png)
+
+> The pipeline takes raw `.wav` speech files as input, passes them through **Stage 1** (Emotion Recognition via CRNN-BiGRU) and **Stage 2** (Fatigue Prediction via BiGRU-Attention), and outputs a fatigue severity classification: **Low / Moderate / High Fatigue**.
 
 ---
 
 ## 🔬 Stage 1 — Emotion Classifier (CRNN-BiGRU)
+
+![CRNN-BiGRU architecture used for Stage-1 speech emotion recognition](CRNN-BiGRU%20architecture%20used%20for%20Stage-1%20speech%20emotion%20recognition..png)
+
+The Stage 1 model is a **Convolutional Recurrent Neural Network** with a Bidirectional GRU that classifies each speech utterance into one of three emotion polarities: **Negative**, **Neutral**, or **Positive**.
 
 ### Model Architecture
 
@@ -124,6 +82,10 @@ Raw Speech Audio
 
 ### Arousal Score Computation
 
+![Arousal & Fatigue Score Computation Flow — Stage 2 Formula Chain](Arousal%20%26%20Fatigue%20Score%20Computation%20Flow%20%28Stage%202%20Formula%20Chain%29.png)
+
+The composite arousal score fuses two streams — acoustic features and emotion probabilities from Stage 1:
+
 **Acoustic Arousal (A_acoustic):**
 - RMS Energy (weight: 0.30)
 - F0 Mean — Fundamental Frequency mean (weight: 0.25)
@@ -145,6 +107,17 @@ A_final = α · A_emotion + (1 - α) · A_acoustic
 | Mid Fatigue Score | **Mild Fatigue** | Reduced arousal, mixed affect |
 | High Fatigue Score | **High Fatigue / Burnout** | Sustained low arousal, negative affect |
 
+### Temporal Model (BiGRU-Attention)
+
+![Temporal window construction and BiGRU-Attention model used for fatigue prediction](Temporal%20window%20construction%20and%20BiGRU-Attention%20model%20used%20for%20fatigue%20prediction..png)
+
+A **10-utterance sliding window** per speaker feeds into a Bidirectional GRU with Scaled Dot-Product Attention to model the cumulative, gradual nature of burnout progression.
+
+- **Sliding Window**: 10 consecutive utterances, stride = 5
+- **Feature Vector per Timestep**: Emotion probabilities + acoustic features + arousal score + trend slope
+- **Model**: BiGRU → Scaled Dot-Product Attention → Context Vector → FC → Softmax (3 classes)
+- **Cross-Validation**: 5-fold stratified
+
 ---
 
 ## 📂 Datasets
@@ -161,6 +134,7 @@ A_final = α · A_emotion + (1 - α) · A_acoustic
 > - [RAVDESS](https://zenodo.org/record/1188976)
 > - [TESS](https://tspace.library.utoronto.ca/handle/1807/24487)
 
+---
 
 ## 📚 Research Background
 
@@ -180,3 +154,9 @@ Grounded in:
 - [ ] Multi-modal fusion (speech + facial expression)
 
 ---
+
+<div align="center">
+
+⭐ Star this repository if you found it useful!
+
+</div>
