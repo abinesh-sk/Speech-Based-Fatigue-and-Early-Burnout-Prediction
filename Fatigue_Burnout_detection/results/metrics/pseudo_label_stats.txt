@@ -1,0 +1,2 @@
+Centroids: [0.28561495 0.41620914 0.75827253]
+Sorted Object Mapping: {np.int64(0): 0, np.int64(1): 1, np.int64(2): 2} (0: Non-Fatigued, 1: Mild, 2: High Burnout)
